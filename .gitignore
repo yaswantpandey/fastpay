@@ -24,6 +24,7 @@
 .DS_Store
 *.pem
 .npm-cache-upgrade*
+.worktree-upgrade*
 # debug
 npm-debug.log*
 yarn-debug.log*
