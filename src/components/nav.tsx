@@ -7,7 +7,7 @@ import {
   Wallet, Send, PlusCircle, History, Settings, LogOut, HandCoins, FileText, MoreHorizontal,
   Landmark, Users, Split, Repeat, BarChart3, Shield, Coins, PiggyBank, Store,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/components/auth-provider";
 import { NotificationBell } from "@/components/notification-bell";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -50,14 +50,46 @@ export function Nav() {
     return () => document.removeEventListener("mousedown", close);
   }, [open]);
 
-  if (!user || !mfaEnrolled) return null;
+  // Public visitor navbar (unauthenticated)
+  if (!user || !mfaEnrolled) {
+    return (
+      <header className="border-b bg-background">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-2.5">
+          <Link href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight">
+            <Wallet className="size-5 text-primary" />
+            <span>FastPay</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link
+              href="/login"
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/signup"
+              className={buttonVariants({ size: "sm" })}
+            >
+              Get started
+            </Link>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  // Authenticated user navbar
   const more = isAdmin ? [...MORE, { href: "/admin", label: "Admin", icon: Shield }] : MORE;
   const moreActive = more.some((l) => l.href === pathname);
 
   return (
     <header className="border-b bg-background">
       <div className="mx-auto flex max-w-5xl items-center gap-1 px-4 py-2">
-        <Link href="/dashboard" className="mr-4 text-lg font-bold">FastPay</Link>
+        <Link href="/dashboard" className="mr-4 flex items-center gap-2 text-lg font-bold">
+          <Wallet className="size-5 text-primary" />
+          <span>FastPay</span>
+        </Link>
         {PRIMARY.map(({ href, label, icon: Icon }) => (
           <Link key={href} href={href}
             className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm ${

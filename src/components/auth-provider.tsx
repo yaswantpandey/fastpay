@@ -60,12 +60,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Remember deep links (e.g. a scanned /pay QR) so sign-in lands back on them.
       sessionStorage.setItem(RETURN_KEY, window.location.pathname + window.location.search);
       router.replace("/login");
-    } else if (user && !mfaEnrolled && pathname !== "/setup-2fa") router.replace("/setup-2fa");
-    else if (user && mfaEnrolled && (pathname === "/login" || pathname === "/signup" || pathname === "/setup-2fa")) {
+    } else if (user && !mfaEnrolled && pathname !== "/setup-2fa") {
+      router.replace("/setup-2fa");
+    } else if (user && mfaEnrolled && (pathname === "/" || pathname === "/login" || pathname === "/signup" || pathname === "/setup-2fa")) {
       const back = sessionStorage.getItem(RETURN_KEY);
       sessionStorage.removeItem(RETURN_KEY);
       // Same-origin relative paths only, to avoid an open redirect.
-      router.replace(back && back.startsWith("/") && !back.startsWith("//") ? back : "/dashboard");
+      router.replace(back && back.startsWith("/") && !back.startsWith("//") && back !== "/" ? back : "/dashboard");
     }
   }, [loading, user, mfaEnrolled, pathname, router]);
 

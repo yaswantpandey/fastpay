@@ -1,8 +1,27 @@
+"use client";
+
+import { useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Globe, Lock, ShieldCheck, Zap } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, Globe, LayoutDashboard, LogOut, ShieldCheck, UserCheck, Zap } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { useAuth } from "@/components/auth-provider";
+import { signOut } from "@/lib/auth";
 
 export default function Home() {
+  const { user, profile, loading, mfaEnrolled } = useAuth();
+  const router = useRouter();
+
+  // If already authenticated and 2FA verified, automatically route to dashboard
+  useEffect(() => {
+    if (!loading && user && mfaEnrolled) {
+      router.replace("/dashboard");
+    }
+  }, [loading, user, mfaEnrolled, router]);
+
+  const isAuthenticated = !loading && !!user && mfaEnrolled;
+  const userIdentifier = profile?.displayName || user?.displayName || user?.email;
+
   return (
     <div className="flex flex-col items-center justify-center py-12 sm:py-20 text-center">
       {/* Hero Badge */}
@@ -19,18 +38,46 @@ export default function Home() {
         and bank-grade two-factor security — all from a single lightweight dashboard.
       </p>
 
-      {/* Action Buttons */}
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <Link href="/signup" className={buttonVariants({ size: "lg", className: "gap-2" })}>
-          Create free account <ArrowRight className="size-4" />
-        </Link>
-        <Link
-          href="/login"
-          className={buttonVariants({ variant: "outline", size: "lg" })}
-        >
-          Sign in to wallet
-        </Link>
+      {/* Action Buttons: Dynamically adjusted based on auth state */}
+      <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        {isAuthenticated ? (
+          <>
+            <Link
+              href="/dashboard"
+              className={buttonVariants({ size: "lg", className: "gap-2" })}
+            >
+              <LayoutDashboard className="size-4" /> Go to Dashboard <ArrowRight className="size-4" />
+            </Link>
+            <Button
+              variant="outline"
+              size="lg"
+              className="gap-2"
+              onClick={() => signOut()}
+            >
+              <LogOut className="size-4" /> Sign out
+            </Button>
+          </>
+        ) : (
+          <>
+            <Link href="/signup" className={buttonVariants({ size: "lg", className: "gap-2" })}>
+              Create free account <ArrowRight className="size-4" />
+            </Link>
+            <Link
+              href="/login"
+              className={buttonVariants({ variant: "outline", size: "lg" })}
+            >
+              Sign in to wallet
+            </Link>
+          </>
+        )}
       </div>
+
+      {isAuthenticated && userIdentifier && (
+        <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+          <UserCheck className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+          <span>Signed in as <span className="font-semibold text-foreground">{userIdentifier}</span></span>
+        </div>
+      )}
 
       <p className="mt-4 text-xs text-muted-foreground">Test mode — no real money is moved.</p>
 
