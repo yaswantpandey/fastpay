@@ -24,7 +24,7 @@ const AuthContext = createContext<AuthState>({
 
 export const useAuth = () => useContext(AuthContext);
 
-const PUBLIC_ROUTES = ["/", "/login"];
+const PUBLIC_ROUTES = ["/", "/login", "/signup"];
 const RETURN_KEY = "fastpay.returnTo";
 // In the emulator, TOTP is not supported, so 2FA enrollment is skipped there.
 // NEXT_PUBLIC_DISABLE_MFA=true temporarily turns 2FA off everywhere.
@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       sessionStorage.setItem(RETURN_KEY, window.location.pathname + window.location.search);
       router.replace("/login");
     } else if (user && !mfaEnrolled && pathname !== "/setup-2fa") router.replace("/setup-2fa");
-    else if (user && mfaEnrolled && (pathname === "/login" || pathname === "/setup-2fa")) {
+    else if (user && mfaEnrolled && (pathname === "/login" || pathname === "/signup" || pathname === "/setup-2fa")) {
       const back = sessionStorage.getItem(RETURN_KEY);
       sessionStorage.removeItem(RETURN_KEY);
       // Same-origin relative paths only, to avoid an open redirect.

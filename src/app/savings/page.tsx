@@ -128,8 +128,14 @@ function PotCard({ pot, busy, setBusy }: { pot: Pot; busy: boolean; setBusy: (id
       </CardHeader>
       <CardContent className="space-y-3">
         {pot.targetCents > 0 && (
-          <div className="h-2 overflow-hidden rounded-full bg-muted">
-            <div className="h-full bg-green-600" style={{ width: `${pct}%` }} />
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Goal progress</span>
+              <span className="font-medium text-foreground">{Math.round(pct)}%</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div className="h-full bg-green-600 transition-all duration-300" style={{ width: `${pct}%` }} />
+            </div>
           </div>
         )}
         <div className="flex gap-2">

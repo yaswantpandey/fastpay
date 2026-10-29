@@ -68,6 +68,18 @@ export default function AddMoneyPage() {
                 <Label htmlFor="amount">Amount (USD)</Label>
                 <Input id="amount" inputMode="decimal" placeholder="0.00" required value={amount}
                   onChange={(e) => setAmount(e.target.value)} />
+                <div className="flex gap-1.5 pt-1">
+                  {["25", "50", "100", "250"].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setAmount(preset)}
+                      className="rounded-md border bg-muted/50 px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    >
+                      ${preset}
+                    </button>
+                  ))}
+                </div>
               </div>
               <Button type="submit" className="w-full" disabled={busy}>Continue</Button>
             </form>

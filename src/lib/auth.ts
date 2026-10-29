@@ -1,6 +1,10 @@
 import {
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  sendPasswordResetEmail,
   signOut as fbSignOut,
   getMultiFactorResolver,
   multiFactor,
@@ -29,6 +33,37 @@ export async function signInWithGoogle(): Promise<SignInResult> {
     }
     throw err;
   }
+}
+
+export async function signInWithEmail(email: string, password: string): Promise<SignInResult> {
+  try {
+    await signInWithEmailAndPassword(auth, email.trim(), password);
+    await httpsCallable(functions, "bootstrapUser")();
+    return { status: "ok" };
+  } catch (err) {
+    const e = err as MultiFactorError;
+    if (e.code === "auth/multi-factor-auth-required") {
+      return { status: "mfa_required", resolver: getMultiFactorResolver(auth, e) };
+    }
+    throw err;
+  }
+}
+
+export async function signUpWithEmail(
+  email: string,
+  password: string,
+  displayName?: string
+): Promise<SignInResult> {
+  const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
+  if (displayName?.trim()) {
+    await updateProfile(cred.user, { displayName: displayName.trim() });
+  }
+  await httpsCallable(functions, "bootstrapUser")();
+  return { status: "ok" };
+}
+
+export async function sendPasswordReset(email: string): Promise<void> {
+  await sendPasswordResetEmail(auth, email.trim());
 }
 
 export async function resolveTotpSignIn(resolver: MultiFactorResolver, code: string) {

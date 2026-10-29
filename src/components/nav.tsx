@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth-provider";
 import { NotificationBell } from "@/components/notification-bell";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { signOut } from "@/lib/auth";
 import { useIsAdmin } from "@/lib/hooks";
 
@@ -86,6 +87,7 @@ export function Nav() {
           )}
         </div>
         <NotificationBell />
+        <ThemeToggle />
         <Button variant="ghost" size="sm" aria-label="Sign out" onClick={() => signOut()}>
           <LogOut className="size-4" />
         </Button>

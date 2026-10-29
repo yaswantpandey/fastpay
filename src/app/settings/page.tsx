@@ -11,9 +11,19 @@ import { useAuth } from "@/components/auth-provider";
 import { db, functions } from "@/lib/firebase";
 import { CURRENCIES } from "@/lib/format";
 import { signOut } from "@/lib/auth";
+import { useTheme } from "next-themes";
+import { Sun, Moon, Monitor } from "lucide-react";
+
+import { useEffect, useState } from "react";
 
 export default function SettingsPage() {
   const { user, profile, mfaEnrolled } = useAuth();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   async function changeCurrency(displayCurrency: string) {
     if (!user) return;
@@ -65,6 +75,45 @@ export default function SettingsPage() {
           {process.env.NEXT_PUBLIC_USE_EMULATORS === "true" && (
             <Button variant="outline" size="sm" className="mt-2" onClick={refreshFx}>Refresh rates (dev only)</Button>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Appearance</CardTitle>
+          <CardDescription>Customize the look and feel of the application.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <Label>Theme</Label>
+          <div className="grid grid-cols-3 gap-2">
+            <Button
+              type="button"
+              variant={mounted && theme === "light" ? "default" : "outline"}
+              className="flex items-center justify-center gap-2"
+              onClick={() => setTheme("light")}
+            >
+              <Sun className="size-4" />
+              <span>Light</span>
+            </Button>
+            <Button
+              type="button"
+              variant={mounted && theme === "dark" ? "default" : "outline"}
+              className="flex items-center justify-center gap-2"
+              onClick={() => setTheme("dark")}
+            >
+              <Moon className="size-4" />
+              <span>Dark</span>
+            </Button>
+            <Button
+              type="button"
+              variant={mounted && theme === "system" ? "default" : "outline"}
+              className="flex items-center justify-center gap-2"
+              onClick={() => setTheme("system")}
+            >
+              <Monitor className="size-4" />
+              <span>System</span>
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
