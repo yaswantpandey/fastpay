@@ -16,12 +16,16 @@ type View = {
   businessName: string; successUrl: string | null;
 };
 
-/** Only follow merchant-supplied redirects over https (or http on localhost for testing). */
+/** Only follow merchant-supplied redirects over https (or http on localhost for testing). Rejects embedded credentials. */
 function safeRedirect(url: string | null) {
   if (!url) return null;
   try {
     const u = new URL(url);
-    return u.protocol === "https:" || (u.protocol === "http:" && ["localhost", "127.0.0.1"].includes(u.hostname)) ? u.toString() : null;
+    if (u.username || u.password) return null;
+    const isHttps = u.protocol === "https:";
+    const isDevHttp = u.protocol === "http:" && ["localhost", "127.0.0.1"].includes(u.hostname);
+    if (!isHttps && !isDevHttp) return null;
+    return u.toString();
   } catch {
     return null;
   }
@@ -71,9 +75,23 @@ export default function CheckoutPage() {
         </CardHeader>
         <CardContent className="space-y-3">
           {view.status === "paid" ? (
-            <p className="flex items-center justify-center gap-2 font-medium text-green-600">
-              <CheckCircle2 className="size-5" /> Paid
-            </p>
+            <div className="space-y-3 text-center">
+              <p className="flex items-center justify-center gap-2 font-medium text-green-600">
+                <CheckCircle2 className="size-5" /> Paid successfully
+              </p>
+              {safeRedirect(view.successUrl) ? (
+                <div className="space-y-2 pt-2 text-xs text-muted-foreground">
+                  <p>Redirecting to <span className="font-semibold text-foreground">{new URL(safeRedirect(view.successUrl)!).hostname}</span>…</p>
+                  <a
+                    href={safeRedirect(view.successUrl)!}
+                    rel="noopener noreferrer"
+                    className="inline-block text-primary underline"
+                  >
+                    Click here if not redirected automatically
+                  </a>
+                </div>
+              ) : null}
+            </div>
           ) : view.status === "expired" ? (
             <p className="text-center text-sm text-muted-foreground">This checkout has expired.</p>
           ) : (

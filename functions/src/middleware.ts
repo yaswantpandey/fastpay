@@ -3,8 +3,8 @@ import { HttpsError, CallableRequest } from "firebase-functions/v2/https";
 import { ZodSchema } from "zod";
 
 export const IS_EMULATOR = process.env.FUNCTIONS_EMULATOR === "true";
-// DISABLE_MFA=true temporarily skips the TOTP requirement.
-const DISABLE_MFA = process.env.DISABLE_MFA === "true";
+// DISABLE_MFA=true temporarily skips the TOTP requirement in emulator only.
+const DISABLE_MFA = IS_EMULATOR && process.env.DISABLE_MFA === "true";
 
 // Limits in cents by KYC tier.
 export const TIER_LIMITS: Record<number, { perTransaction: number; perDay: number }> = {

@@ -6,9 +6,7 @@ import { payoutSchema, devSettlePayoutSchema } from "./schemas";
 import { parse, requireAuth, requireMoneyMover, audit, bumpStats, IS_EMULATOR } from "./middleware";
 import { STRIPE_SECRET_KEY } from "./topup";
 
-// On the emulator, payouts stay pending until settled with devSettlePayout.
-// In production they go to the user's Stripe Connect Express account.
-const DEV_PAYOUTS = IS_EMULATOR || process.env.DEV_PAYOUTS === "true";
+const DEV_PAYOUTS = IS_EMULATOR;
 const APP_URL = process.env.APP_URL ?? "http://localhost:3001";
 
 const stripeClient = () => new Stripe(STRIPE_SECRET_KEY.value());

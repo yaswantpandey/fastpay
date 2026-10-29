@@ -18,14 +18,60 @@ const BACKOFF_MS = [60_000, 5 * 60_000, 30 * 60_000, 2 * 3600_000, 12 * 3600_000
 
 const sha256 = (s: string) => createHash("sha256").update(s).digest("hex");
 
-function checkWebhookUrl(url: string) {
+function isPrivateOrReservedHost(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (
+    host === "localhost" ||
+    host.endsWith(".localhost") ||
+    host.endsWith(".local") ||
+    host.endsWith(".internal") ||
+    host === "metadata.google.internal" ||
+    host === "metadata" ||
+    host === "instance-data"
+  ) {
+    return true;
+  }
+
+  if (
+    host === "::1" ||
+    host === "::" ||
+    host.startsWith("fe80:") ||
+    host.startsWith("fc00:") ||
+    host.startsWith("fd00:")
+  ) {
+    return true;
+  }
+
+  const ipv4 = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (ipv4) {
+    const [, a, b, c, d] = ipv4.map(Number);
+    if (a > 255 || b > 255 || c > 255 || d > 255) return true;
+    if (a === 0 || a === 127 || a === 10) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 169 && b === 254) return true;
+    if (a === 100 && b >= 64 && b <= 127) return true;
+  }
+  return false;
+}
+
+export function checkWebhookUrl(url: string) {
   if (!url) return;
-  const u = new URL(url);
-  const local = ["localhost", "127.0.0.1"].includes(u.hostname);
-  if (u.protocol === "https:" && !local) return;
-  // Plain http and loopback only for local testing; blocks SSRF against internal hosts in production.
-  if (IS_EMULATOR && local) return;
-  throw new HttpsError("invalid-argument", "Webhook URL must be a public https:// URL");
+  let u: URL;
+  try {
+    u = new URL(url);
+  } catch {
+    throw new HttpsError("invalid-argument", "Invalid webhook URL format");
+  }
+
+  const isLocalOrPrivate = isPrivateOrReservedHost(u.hostname);
+  if (IS_EMULATOR && (isLocalOrPrivate || u.protocol === "http:")) {
+    return;
+  }
+
+  if (u.protocol !== "https:" || isLocalOrPrivate) {
+    throw new HttpsError("invalid-argument", "Webhook URL must be a public https:// URL");
+  }
 }
 
 // ---------- Merchant profile & API keys (callable, signed-in owner) ----------

@@ -7,8 +7,7 @@ import { IS_EMULATOR } from "./middleware";
 export const RESEND_API_KEY = defineSecret("RESEND_API_KEY");
 const FROM = process.env.EMAIL_FROM ?? "FastPay <notifications@fastpay.example>";
 const APP_URL = process.env.APP_URL ?? "http://localhost:3001";
-// Emulator (or no provider configured): emails are recorded in mailOutbox and logged, never sent.
-const DEV_EMAIL = IS_EMULATOR || process.env.DEV_EMAIL === "true";
+const DEV_EMAIL = IS_EMULATOR;
 
 export interface Mail { to: string; subject: string; text: string; link?: string }
 

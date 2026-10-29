@@ -23,7 +23,8 @@ service cloud.firestore {
           && request.resource.data.email.size() <= 200
           && request.resource.data.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
           && request.resource.data.name is string
-          && request.resource.data.name.size() <= 100;
+          && request.resource.data.name.size() <= 100
+          && (!('createdAt' in request.resource.data) || request.resource.data.createdAt is timestamp);
       }
     }
 

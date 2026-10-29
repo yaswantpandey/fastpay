@@ -6,7 +6,7 @@ import { devKycSchema, adminSetTierSchema } from "./schemas";
 import { parse, requireAuth, requireAdmin, audit, IS_EMULATOR } from "./middleware";
 import { STRIPE_SECRET_KEY } from "./topup";
 
-const DEV_KYC = IS_EMULATOR || process.env.DEV_KYC === "true";
+const DEV_KYC = IS_EMULATOR;
 const APP_URL = process.env.APP_URL ?? "http://localhost:3001";
 
 /** Starts a Stripe Identity document + selfie check and returns the hosted verification URL. */
