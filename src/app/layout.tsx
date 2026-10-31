@@ -25,6 +25,16 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "FastPay — Global Digital Wallet",
   description: "Hold, send and receive money worldwide.",
+  manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
